@@ -6,29 +6,36 @@ def create_job_update(matched_jobs):
     telegraph = Telegraph()
     telegraph.create_account(short_name='CareerFitJobs')
 
-    content = '<b>📋 Latest Job Listings</b>'
+    # Improved HTML structure for better instant view
+    content = '''
+    <article>
+        <h3>📋 Latest Job Listings</h3>
+        <div class="job-listings">
+    '''
     
     for category, jobs in matched_jobs.items():
-        content += f'<h4>🔹 {category}</h4>'
+        content += f'<h4>🔹 {category}</h4><div class="category-jobs">'
         for job in jobs:
-            job_title = job['summary'].split('\n')[0][:50]  # Get first line, up to 50 chars
+            title = job['summary'].split('\n')[0][:100]
             content += f'''
-            <p>
-            📢 <b>{job['channel']}</b><br>
-            💼 <code>{job_title}</code><br>
-            🔗 <a href="{job['message_link']}">View full job details</a>
-            </p>
-            <hr>
+                <div class="job-card">
+                    📢<h5>{job['channel']}</h5>
+                    💼<p>{title}</p>
+                    <a href="{job['message_link']}">View full job details</a>
+                </div>
             '''
+        content += '</div>'
+    
+    content += '</div></article>'
 
     current_date = datetime.now().strftime("%Y-%m-%d")
-    page_title = f'Career Fit Jobs - {current_date}'
-    
     response = telegraph.create_page(
-        page_title,
+        title=f'Career Fit Jobs - {current_date}',
         html_content=content,
-        author_name='Career Fit Jobs Bot'
+        author_name='Career Fit Jobs Bot',
+        author_url='https://t.me/CareerFitJobsBot'
     )
+    
     return response['url']
 
 def create_promotion_banner():

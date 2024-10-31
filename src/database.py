@@ -78,10 +78,11 @@ def clear_job_listings():
 
 def get_all_users():
     try:
-        response = supabase.table('users').select('user_id').execute()
+        response = supabase.table('users').select('*').execute()
+        logger.info(f"Retrieved {len(response.data)} users from database")
         return response.data
     except Exception as e:
-        logger.error(f"Error getting all users: {e}")
+        logger.error(f"Error getting users: {e}")
         return []
 
 def add_pending_user(user_id: int):

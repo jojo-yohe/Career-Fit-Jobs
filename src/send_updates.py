@@ -34,48 +34,40 @@ async def send_job_updates():
             logger.info(f"Retrieved {len(users)} users")
             
             for user in users:
-                logger.info(f"Processing user {user['user_id']}")
                 user_preferences = get_user_preferences(user['user_id'])
                 if user_preferences:
-                    logger.info(f"User preferences: {user_preferences}")
                     matched_jobs = match_jobs_with_preferences(job_listings, user_preferences)
                     if matched_jobs:
-                        logger.info(f"Found {sum(len(jobs) for jobs in matched_jobs.values())} matched jobs")
-                        summary_text = "📊 <b>This Week's Career Fit Jobs</b>\n\n"
-                        for category in JOB_CATEGORIES:
-                            if category in matched_jobs:
-                                jobs = matched_jobs[category]
-                                channels = set(job['channel'] for job in jobs)
-                                summary_text += f"🔹 <b>{category}</b> - found {len(jobs)} matching jobs from channels:\n"
-                                for channel in channels:
-                                    summary_text += f"    • {channel}\n"
-                                summary_text += "\n"
-                        
                         update_url = create_job_update(matched_jobs)
                         
+                        # Improved message format with instant view
                         message = (
-                            "📊 Job Updates Summary\n"
-                            f"{summary_text}\n"
-                            "➖➖➖➖➖➖➖➖\n"
-                            f"🔍 [View Full Details]({update_url})"
+                            "📊 Latest Job Matches\n\n"
+                            f"{format_summary(matched_jobs)}\n"
+                            f"🔍 [View Details]({update_url})"
                         )
                         
-                        await application.bot.send_message(
-                            chat_id=user['user_id'], 
-                            text=message, 
-                            parse_mode='Markdown',
-                            disable_web_page_preview=True
-                        )
-                        logger.info(f"Sent update to user {user['user_id']}")
-                        await clear_job_listings()
-                    else:
-                        logger.info(f"No matching jobs found for user {user['user_id']}")
-                else:
-                    logger.info(f"No preferences found for user {user['user_id']}")
-        else:
-            logger.info("No job listings found")
+                        try:
+                            await application.bot.send_message(
+                                chat_id=user['user_id'],
+                                text=message,
+                                parse_mode='Markdown',
+                                disable_web_page_preview=False  # Enable preview for instant view
+                            )
+                            logger.info(f"Successfully sent update to user {user['user_id']}")
+                        except Exception as e:
+                            logger.error(f"Failed to send update to user {user['user_id']}: {e}")
+                            
+        await clear_job_listings()
     except Exception as e:
-        logger.error(f"Error in send_job_updates: {e}", exc_info=True)
+        logger.error(f"Error in send_job_updates: {e}")
+
+def format_summary(matched_jobs):
+    summary = ""
+    for category, jobs in matched_jobs.items():
+        channels = set(job['channel'] for job in jobs)
+        summary += f"📌 {category}\n└ {len(jobs)} jobs from: {', '.join(channels)}\n"
+    return summary
 
 if __name__ == "__main__":
     logger.info("Script started")
