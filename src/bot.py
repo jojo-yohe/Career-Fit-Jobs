@@ -2,7 +2,7 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 from config import TOKEN, JOB_CATEGORIES
-from database import add_user, update_user_preferences, get_user_preferences
+from database import add_user, update_user_preferences, get_user_preferences, add_pending_user
 from policy import get_privacy_policy_url
 from message_formatter import create_job_update, create_promotion_banner
 from telegram.error import BadRequest
@@ -14,16 +14,19 @@ MAX_PREFERENCES = 15
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
-    is_new_user = add_user(user.id)
+    try:
+        is_new_user = add_user(user.id)
+        if not is_new_user:
+            add_pending_user(user.id)
+    except Exception as e:
+        logger.error(f"Error in start command: {e}")
     
-    privacy_policy_url = get_privacy_policy_url()
     welcome_message = (
-        f"<code>👋 Welcome {user.first_name}!\n\n"
+        f"👋 Welcome {user.first_name}!\n\n"
         "Let's set up your job preferences.\n"
-        "Please read our</code> <a href='{privacy_policy_url}'>Privacy Policy</a>"
+        "[Read our Privacy Policy](https://telegra.ph/Career-Fit-Job-Bot---Privacy-Policy)"
     )
-    await update.message.reply_text(welcome_message, parse_mode='HTML')
-    
+    await update.message.reply_text(welcome_message, parse_mode='Markdown', disable_web_page_preview=True)
     await show_preference_menu(update, context)
 
 async def preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -86,18 +89,18 @@ async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     help_text = (
-        "<code>🤖 Career Fit Job Bot Help\n\n"
-        "Commands:\n"
-        "▫️ /start - Begin using the bot\n"
-        "▫️ /preferences - Update preferences\n"
-        "▫️ /help - Show this message\n\n"
-        "How to use:\n"
+        "🤖 *Career Fit Job Bot Help*\n\n"
+        "📍 *Commands*\n"
+        "• /start - Begin using the bot\n"
+        "• /preferences - Update preferences\n"
+        "• /help - Show this message\n\n"
+        "📝 *How to use*\n"
         "1. Use /start to set preferences\n"
         "2. Receive job updates 3x daily\n"
         "3. Use /preferences to modify settings\n\n"
-        "Need help? Contact @YourUsername</code>"
+        "💡 Need help? Contact @YourUsername"
     )
-    await update.message.reply_text(help_text, parse_mode='HTML')
+    await update.message.reply_text(help_text, parse_mode='MarkdownV2')
 
 async def send_job_updates(context: ContextTypes.DEFAULT_TYPE) -> None:
     # Implement the logic to send job updates here

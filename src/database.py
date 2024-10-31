@@ -84,6 +84,22 @@ def get_all_users():
         logger.error(f"Error getting all users: {e}")
         return []
 
+def add_pending_user(user_id: int):
+    try:
+        supabase.table('pending_users').insert({"user_id": user_id}).execute()
+        logger.info(f"Added pending user {user_id}")
+    except Exception as e:
+        logger.error(f"Error adding pending user {user_id}: {e}")
+
+def process_pending_users():
+    try:
+        response = supabase.table('pending_users').select('*').execute()
+        for user in response.data:
+            add_user(user['user_id'])
+        supabase.table('pending_users').delete().neq('id', 0).execute()
+    except Exception as e:
+        logger.error(f"Error processing pending users: {e}")
+
 if __name__ == '__main__':
     # You can add test code here to verify database operations
     pass

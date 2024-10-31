@@ -25,6 +25,7 @@ jobs:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
+        python -c "from database import process_pending_users; process_pending_users()"
         python src/main.py &
         sleep 7200  # Run for 2 hours
         kill $!

@@ -54,13 +54,18 @@ async def send_job_updates():
                         update_url = create_job_update(matched_jobs)
                         
                         message = (
-                            "<code>📊 Job Updates Summary\n"
+                            "📊 Job Updates Summary\n"
                             f"{summary_text}\n"
                             "➖➖➖➖➖➖➖➖\n"
-                            f"🔍 View Details:</code> <a href='{update_url}'>Click Here</a>"
+                            f"🔍 [View Full Details]({update_url})"
                         )
                         
-                        await application.bot.send_message(chat_id=user['user_id'], text=message, parse_mode='HTML')
+                        await application.bot.send_message(
+                            chat_id=user['user_id'], 
+                            text=message, 
+                            parse_mode='Markdown',
+                            disable_web_page_preview=True
+                        )
                         logger.info(f"Sent update to user {user['user_id']}")
                         await clear_job_listings()
                     else:
