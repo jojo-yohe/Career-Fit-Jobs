@@ -1,6 +1,6 @@
-# Telegram Job Search Bot Documentation
+# 📚 Career Fit Job Bot Documentation
 
-## Project Structure
+## 🏗️ Project Architecture
 
 Carrer-Fit-Job-bot/
 ├── src/
@@ -21,62 +21,78 @@ Carrer-Fit-Job-bot/
 ├── DOCUMENTATION.md
 └── .env
 
-## Components
+## 🔧 Core Components
 
-### bot.py
-Handles the Telegram bot interface, including user interactions and preference settings.
+### 🤖 Bot Module (`bot.py`)
+- Handles user interactions
+- Manages preferences
+- Processes commands (/start, /help, /preferences)
 
-### scraper.py
-Manages the scraping of job listings from specified Telegram channels.
+### 🕷️ Scraper Module (`scraper.py`)
+- Collects jobs from Telegram channels
+- Filters relevant content
+- Stores in database
 
-### main.py
-The entry point of the application, coordinating the bot and scraper operations.
+### 📊 Database Module (`database.py`)
+- Manages user data
+- Stores job listings
+- Handles preferences
 
-### config.py
-Contains configuration variables and constants used throughout the project.
+### 📬 Updates Module (`send_updates.py`)
+- Matches jobs with preferences
+- Formats messages
+- Sends updates to users
 
-### database.py
-Manages interactions with the Supabase database for storing user preferences and job listings.
+## 🔄 Workflow
 
-### message_formatter.py
-Formats job listings and promotional content using Telegraph.
+1. 🕒 **Scheduling**
+   - Scraper runs every 8 hours
+   - Updates sent 30 minutes after scraping
+   - Bot runs continuously with 2-hour active periods
 
-### policy.py
-Generates and manages the privacy policy for the bot.
+2. 🎯 **Job Matching**
+   - Analyzes job descriptions
+   - Matches with user preferences
+   - Filters by relevance
 
-## Workflow
+3. 📨 **Update Delivery**
+   - Creates Telegraph pages
+   - Sends summaries via Telegram
+   - Includes direct links
 
-1. The scraper runs periodically (3 times a day) to collect job listings from specified channels.
-2. Job listings are stored in the Supabase database.
-3. The bot sends personalized job updates to users based on their preferences.
-4. After sending updates, the database is cleared to maintain efficiency.
+## 🗄️ Database Schema
 
-## Database Schema
+### 👤 Users Table
+- user_id (BIGINT, PRIMARY KEY)
+- preferences (JSONB)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
 
-### Users Table
-- user_id (primary key)
-- preferences (JSON array)
-- created_at
-- updated_at
+### 📋 Job Listings Table
+- id (SERIAL, PRIMARY KEY)
+- channel (TEXT)
+- summary (TEXT)
+- message_id (BIGINT)
+- message_link (TEXT)
+- created_at (TIMESTAMP)
 
-### Job Listings Table
-- id (primary key)
-- channel
-- summary
-- full_text
-- message_id
-- created_at
+## 🚀 Getting Started
 
-## Deployment
+1. 🤖 Test the bot: [@CareerFitJobsBot](https://t.me/CareerFitJobsBot)
+2. 📋 Set your preferences using /start
+3. 📬 Receive personalized job updates
 
-The bot is deployed using GitHub Actions, which automates the scraping and update processes.
+## ⚠️ Error Handling
 
-## Error Handling
+- 📝 Logs all errors
+- 🚨 Alerts admins for critical issues
+- 🔄 Automatic recovery mechanisms
 
-Errors are logged using Python's logging module. Critical errors trigger alerts to the admin.
+## 🔜 Future Plans
 
-## Future Improvements
+- 🌐 Multi-language support
+- 🤖 AI-powered job matching
+- 📊 Analytics dashboard
+- 💬 User feedback system
 
-- Implement more advanced text analysis for job matching
-- Add support for multiple languages
-- Introduce a feedback system for job listings
+Need more details? Contact @cfjsupport on Telegram!
