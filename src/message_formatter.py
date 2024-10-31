@@ -6,34 +6,28 @@ def create_job_update(matched_jobs):
     telegraph = Telegraph()
     telegraph.create_account(short_name='CareerFitJobs')
 
-    # Improved HTML structure for better instant view
-    content = '''
-    <article>
-        <h3>📋 Latest Job Listings</h3>
-        <div class="job-listings">
-    '''
+    # Simplified HTML structure with emojis
+    content = '<h3>🎯 Latest Career Fit Job Matches</h3>'
     
     for category, jobs in matched_jobs.items():
-        content += f'<h4>🔹 {category}</h4><div class="category-jobs">'
+        content += f'<h4>📌 {category}</h4>'
         for job in jobs:
             title = job['summary'].split('\n')[0][:100]
             content += f'''
-                <div class="job-card">
-                    📢<h5>{job['channel']}</h5>
-                    💼<p>{title}</p>
-                    <a href="{job['message_link']}">View full job details</a>
-                </div>
+            <p>
+            📢 <b>{job['channel']}</b><br>
+            💼 {title}<br>
+            🔗 <a href="{job['message_link']}">Click to view full job details</a>
+            </p>
+            <hr>
             '''
-        content += '</div>'
-    
-    content += '</div></article>'
 
     current_date = datetime.now().strftime("%Y-%m-%d")
     response = telegraph.create_page(
-        title=f'Career Fit Jobs - {current_date}',
+        title=f'✨ Career Fit Jobs - {current_date}',
         html_content=content,
         author_name='Career Fit Jobs Bot',
-        author_url='https://t.me/CareerFitJobsBot'
+        return_content=True
     )
     
     return response['url']
