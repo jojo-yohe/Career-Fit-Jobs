@@ -18,10 +18,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     privacy_policy_url = get_privacy_policy_url()
     welcome_message = (
-        f"Welcome, {user.first_name}! Let's set up your job preferences.\n\n"
-        f"Please read our privacy policy: {privacy_policy_url}"
+        f"<code>👋 Welcome {user.first_name}!\n\n"
+        "Let's set up your job preferences.\n"
+        "Please read our</code> <a href='{privacy_policy_url}'>Privacy Policy</a>"
     )
-    await update.message.reply_text(welcome_message)
+    await update.message.reply_text(welcome_message, parse_mode='HTML')
     
     await show_preference_menu(update, context)
 
@@ -84,22 +85,19 @@ async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await update.callback_query.edit_message_text(message)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    help_text = """
-    Career Fit Job Bot Help
-
-    Commands:
-    /start - Begin using the bot and set up your preferences
-    /preferences - View or update your job preferences
-    /help - Show this help message
-
-    How to use:
-    1. Use /start to begin and set your initial preferences.
-    2. You'll receive job updates 3 times daily based on your preferences.
-    3. Use /preferences anytime to view or change your settings.
-
-    For more assistance, contact: [Your Contact Info]
-    """
-    await update.message.reply_text(help_text)
+    help_text = (
+        "<code>🤖 Career Fit Job Bot Help\n\n"
+        "Commands:\n"
+        "▫️ /start - Begin using the bot\n"
+        "▫️ /preferences - Update preferences\n"
+        "▫️ /help - Show this message\n\n"
+        "How to use:\n"
+        "1. Use /start to set preferences\n"
+        "2. Receive job updates 3x daily\n"
+        "3. Use /preferences to modify settings\n\n"
+        "Need help? Contact @YourUsername</code>"
+    )
+    await update.message.reply_text(help_text, parse_mode='HTML')
 
 async def send_job_updates(context: ContextTypes.DEFAULT_TYPE) -> None:
     # Implement the logic to send job updates here

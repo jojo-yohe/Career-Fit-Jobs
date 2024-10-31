@@ -2,7 +2,7 @@ import logging
 import sys
 from telegram.ext import Application
 from config import TOKEN, JOB_CATEGORIES
-from database import get_all_users, get_job_listings, get_user_preferences
+from database import get_all_users, get_job_listings, get_user_preferences, clear_job_listings
 from message_formatter import create_job_update
 from collections import defaultdict
 
@@ -53,12 +53,16 @@ async def send_job_updates():
                         
                         update_url = create_job_update(matched_jobs)
                         
-                        message = (f"{summary_text}\n"
-                                   f"----------------------------\n\n"
-                                   f"🔗 <a href='{update_url}'>View detailed job listings here</a>")
+                        message = (
+                            "<code>📊 Job Updates Summary\n"
+                            f"{summary_text}\n"
+                            "➖➖➖➖➖➖➖➖\n"
+                            f"🔍 View Details:</code> <a href='{update_url}'>Click Here</a>"
+                        )
                         
                         await application.bot.send_message(chat_id=user['user_id'], text=message, parse_mode='HTML')
                         logger.info(f"Sent update to user {user['user_id']}")
+                        await clear_job_listings()
                     else:
                         logger.info(f"No matching jobs found for user {user['user_id']}")
                 else:
