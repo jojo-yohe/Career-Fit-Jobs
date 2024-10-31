@@ -2,7 +2,7 @@ name: Job Update
 
 on:
   schedule:
-    - cron: '0 */8 * * *'  # Runs every 8 hours
+    - cron: '0 */8 * * *'  # Runs at 00:00, 08:00, 16:00 UTC
   workflow_dispatch:
 
 jobs:

@@ -2,8 +2,8 @@ name: Send User Updates
 
 on:
   schedule:
-    - cron: '0 */8 * * *'  # Runs every 8 hours
-  workflow_dispatch:  # Allows manual triggering
+    - cron: '30 */8 * * *'  # Runs at 00:30, 08:30, 16:30 UTC (30 minutes after scraping)
+  workflow_dispatch:
 
 jobs:
   send_updates:
