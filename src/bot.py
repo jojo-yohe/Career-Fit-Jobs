@@ -16,11 +16,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     is_new_user = add_user(user.id)
     
+    privacy_url = get_privacy_policy_url()
     welcome_message = (
         f"👋 Welcome {user.first_name}!\n\n"
         "Let's set up your job preferences.\n\n"
-        "Please read our Privacy Policy:\n"
-        "https://telegra.ph/Privacy-Policy-Career-Fit-Job-Bot"
+        f"Please read our Privacy Policy:\n{privacy_url}"
     )
     await update.message.reply_text(welcome_message)
     
@@ -95,7 +95,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "1. Use /start to set preferences\n"
         "2. Receive job updates 3x daily\n"
         "3. Use /preferences to modify settings\n\n"
-        "💡 Need help? Contact @YourUsername"
+        "💡 Need help? Contact @cfjsupport"
     )
     await update.message.reply_text(help_text)
 
