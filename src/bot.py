@@ -86,16 +86,15 @@ async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     help_text = (
-        "🤖 *Career Fit Job Bot Help*\n\n"
-        "📍 *Commands*\n"
-        "• /start - Begin using the bot\n"
-        "• /preferences - Update preferences\n"
-        "• /help - Show this message\n\n"
-        "📝 *How to use*\n"
-        "1. Use /start to set preferences\n"
-        "2. Receive job updates 3x daily\n"
-        "3. Use /preferences to modify settings\n\n"
-        "💡 Need help? Contact @cfjsupport"
+        "✨ *Career Fit Job Bot*\n\n"
+        "🔍 *Available Commands:*\n"
+        "• /start - Start the bot, Privacy Policy & set preferences\n"
+        "• /preferences - Update your job categories\n"
+        "• /help - Show this help message\n\n"
+        "📬 *Updates Schedule:*\n"
+        "You'll receive job matches 3 times daily\n\n"
+        "💡 *Need Help?*\n"
+        "Contact: @cfjsupport"
     )
     await update.message.reply_text(help_text)
 
