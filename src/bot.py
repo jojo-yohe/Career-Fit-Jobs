@@ -14,19 +14,16 @@ MAX_PREFERENCES = 15
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
-    try:
-        is_new_user = add_user(user.id)
-        if not is_new_user:
-            add_pending_user(user.id)
-    except Exception as e:
-        logger.error(f"Error in start command: {e}")
+    is_new_user = add_user(user.id)
     
     welcome_message = (
         f"👋 Welcome {user.first_name}!\n\n"
-        "Let's set up your job preferences.\n"
-        "[Read our Privacy Policy](https://telegra.ph/Career-Fit-Job-Bot---Privacy-Policy)"
+        "Let's set up your job preferences.\n\n"
+        "Please read our Privacy Policy:\n"
+        "https://telegra.ph/Privacy-Policy-Career-Fit-Job-Bot"
     )
-    await update.message.reply_text(welcome_message, parse_mode='Markdown', disable_web_page_preview=True)
+    await update.message.reply_text(welcome_message)
+    
     await show_preference_menu(update, context)
 
 async def preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -100,15 +97,17 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "3. Use /preferences to modify settings\n\n"
         "💡 Need help? Contact @YourUsername"
     )
-    await update.message.reply_text(help_text, parse_mode='MarkdownV2')
+    await update.message.reply_text(help_text)
 
 async def send_job_updates(context: ContextTypes.DEFAULT_TYPE) -> None:
     # Implement the logic to send job updates here
     # This function will be called every 8 hours by the job queue
     pass
 
-def setup_handlers(application: Application):
+def setup_handlers(application: Application) -> None:
+    """Setup bot handlers"""
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("preferences", preferences))
     application.add_handler(CallbackQueryHandler(button))
     # Add other handlers here
