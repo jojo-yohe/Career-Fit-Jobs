@@ -67,7 +67,7 @@ def format_summary(matched_jobs):
     for category, jobs in matched_jobs.items():
         channels = set(job['channel'] for job in jobs)
         summary += f"📌 *{category}*\n└ {len(jobs)} jobs from:\n"
-        channel_list = [f"  • `{channel}`" for channel in channels]
+        channel_list = [f"  • _{channel}_" for channel in channels]
         summary += f"{', '.join(channel_list)}\n\n"
     return summary
 
