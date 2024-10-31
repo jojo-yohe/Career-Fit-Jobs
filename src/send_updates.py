@@ -40,11 +40,13 @@ async def send_job_updates():
                     if matched_jobs:
                         update_url = create_job_update(matched_jobs)
                         
-                        # Improved message format with instant view
+                        # Improved message format
                         message = (
-                            "📊 Latest Job Matches\n\n"
+                            "✨ *Latest Job Matches*\n\n"
                             f"{format_summary(matched_jobs)}\n"
-                            f"🔍 [View Details]({update_url})"
+                            "──────────────\n"
+                            "🔍 [View Full Details]({update_url})\n\n"
+                            "🤖 _Powered by Career Fit Jobs_"
                         )
                         
                         try:
@@ -52,7 +54,7 @@ async def send_job_updates():
                                 chat_id=user['user_id'],
                                 text=message,
                                 parse_mode='Markdown',
-                                disable_web_page_preview=False  # Enable preview for instant view
+                                disable_web_page_preview=False
                             )
                             logger.info(f"Successfully sent update to user {user['user_id']}")
                         except Exception as e:
@@ -66,7 +68,11 @@ def format_summary(matched_jobs):
     summary = ""
     for category, jobs in matched_jobs.items():
         channels = set(job['channel'] for job in jobs)
-        summary += f"📌 {category}\n└ {len(jobs)} jobs from: {', '.join(channels)}\n"
+        summary += f"📌 *{category}*\n"
+        summary += f"└ Found {len(jobs)} jobs from:\n"
+        for channel in channels:
+            summary += f"   • {channel}\n"
+        summary += "\n"
     return summary
 
 if __name__ == "__main__":
