@@ -84,10 +84,6 @@ Your personal job hunting assistant that brings opportunities right to your Tele
 3. 📬 Sends personalized updates via Telegraph and Telegram
 4. 🧹 Auto-cleans database to maintain performance
 
-## 🤝 Contributing
-
-We welcome contributions! See `CONTRIBUTING.md` for guidelines.
-
 ## 📝 License
 
 MIT License - feel free to use and modify!
