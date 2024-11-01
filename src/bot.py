@@ -6,13 +6,24 @@ from database import add_user, update_user_preferences, get_user_preferences, ad
 from policy import get_privacy_policy_url
 from message_formatter import create_job_update, create_promotion_banner
 from telegram.error import BadRequest
+from datetime import datetime, time
+import pytz
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 MAX_PREFERENCES = 15
 
+async def check_bot_availability(update: Update) -> bool:
+    is_sleeping, sleep_message = is_bot_sleeping()
+    if is_sleeping:
+        await update.message.reply_text(sleep_message, parse_mode='Markdown')
+        return False
+    return True
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await check_bot_availability(update):
+        return
     user = update.effective_user
     is_new_user = add_user(user.id)
     
@@ -27,6 +38,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await show_preference_menu(update, context)
 
 async def preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await check_bot_availability(update):
+        return
     await show_preference_menu(update, context)
 
 async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -55,6 +68,8 @@ async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(text=message, reply_markup=reply_markup)
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await check_bot_availability(update):
+        return
     query = update.callback_query
     await query.answer()
     
@@ -85,6 +100,8 @@ async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await update.callback_query.edit_message_text(message)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await check_bot_availability(update):
+        return
     help_text = (
         "✨ *Career Fit Job Bot*\n\n"
         "🔍 *Available Commands:*\n"
@@ -106,12 +123,46 @@ async def send_job_updates(context: ContextTypes.DEFAULT_TYPE) -> None:
     # This function will be called every 8 hours by the job queue
     pass
 
+def is_bot_sleeping() -> tuple[bool, str]:
+    ethiopia_tz = pytz.timezone('Africa/Addis_Ababa')
+    current_time = datetime.now(ethiopia_tz)
+    current_hour = current_time.hour
+    current_minute = current_time.minute
+
+    # Night sleep (1 AM - 7 AM)
+    if 1 <= current_hour < 7:
+        return True, (
+            "😴 *Bot is having its night sleep*\n\n"
+            "Will be back at 7:00 AM EAT\n"
+            "Regular hours: 7:00 AM - 1:00 AM"
+        )
+
+    # Hourly breaks
+    break_hours = {
+        9: "10:00 AM",   # 9-10 AM break
+        12: "1:00 PM",   # 12-1 PM break
+        15: "4:00 PM",   # 3-4 PM break
+        18: "7:00 PM",   # 6-7 PM break
+        21: "10:00 PM",  # 9-10 PM break
+        0: "1:00 AM"     # 12-1 AM break
+    }
+
+    if current_hour in break_hours:
+        return True, (
+            "🔄 *Bot is taking a short break*\n\n"
+            f"Will be back at {break_hours[current_hour]} EAT\n"
+            "Thanks for your patience!"
+        )
+
+    return False, ""
+
 def setup_handlers(application: Application) -> None:
     """Setup bot handlers"""
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("preferences", preferences))
     application.add_handler(CallbackQueryHandler(button))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     # Add other handlers here
 
 def main() -> None:
