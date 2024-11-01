@@ -10,6 +10,8 @@ jobs:
   send:
     name: Send Updates to Users
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -17,6 +19,14 @@ jobs:
           python-version: '3.9'
           cache: 'pip'
       - run: pip install -r requirements.txt
+      - name: Keep workflow active
+        run: |
+          date > last_send.txt
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add last_send.txt
+          git commit -m "Update last send timestamp"
+          git push
       - name: Send Updates
         env:
           PYTHONPATH: src

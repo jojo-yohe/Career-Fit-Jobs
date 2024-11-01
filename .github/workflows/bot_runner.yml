@@ -13,6 +13,8 @@ jobs:
   bot:
     name: Run Telegram Bot
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -20,6 +22,14 @@ jobs:
           python-version: '3.9'
           cache: 'pip'
       - run: pip install -r requirements.txt
+      - name: Keep workflow active
+        run: |
+          date > last_run.txt
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add last_run.txt
+          git commit -m "Update last run timestamp"
+          git push
       - name: Run Bot
         env:
           PYTHONPATH: src
@@ -31,5 +41,5 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
           python src/main.py &
-          sleep 7200  # Run for 2 hours
+          sleep 7200
           kill $!
