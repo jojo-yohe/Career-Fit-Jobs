@@ -2,7 +2,7 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 from config import TOKEN, JOB_CATEGORIES
-from database import add_user, update_user_preferences, get_user_preferences, add_pending_user
+from database import add_user, update_user_preferences, get_user_preferences, add_pending_user, user_exists
 from policy import get_privacy_policy_url
 from message_formatter import create_job_update, create_promotion_banner
 from telegram.error import BadRequest
@@ -27,21 +27,41 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await show_preference_menu(update, context)
 
 async def preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.effective_user.id
+    logger.info(f"Preferences command called by user {user_id}")
+    
+    # First ensure user exists in database
+    if not user_exists(user_id):
+        logger.info(f"New user {user_id} not found, adding to database")
+        add_user(user_id)
+    
     await show_preference_menu(update, context)
 
 async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
-    user_preferences = get_user_preferences(user_id)
+    logger.info(f"Showing preference menu to user {user_id}")
+    
+    # Get or initialize preferences
+    user_preferences = get_user_preferences(user_id) or []
+    logger.info(f"Current preferences for user {user_id}: {user_preferences}")
     
     keyboard = []
     row = []
+    
+    # Debug log for categories
+    logger.info(f"Available categories: {JOB_CATEGORIES}")
+    
     for i, category in enumerate(JOB_CATEGORIES, 1):
         icon = "✅" if category in user_preferences else "⬜️"
-        row.append(InlineKeyboardButton(f"{icon} {category}", callback_data=f"pref_{category.lower().replace(' ', '_').replace('/', '_')}"))
+        callback_data = f"pref_{category.lower().replace(' ', '_').replace('/', '_')}"
+        row.append(InlineKeyboardButton(f"{icon} {category}", callback_data=callback_data))
         
         if i % 3 == 0 or i == len(JOB_CATEGORIES):
             keyboard.append(row)
             row = []
+            
+    if row:  # Add any remaining buttons
+        keyboard.append(row)
     
     keyboard.append([InlineKeyboardButton("Submit", callback_data="pref_submit")])
     
@@ -49,10 +69,12 @@ async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     message = (f"Please select up to {MAX_PREFERENCES} job preferences:\n"
                f"(You have selected {len(user_preferences)}/{MAX_PREFERENCES})")
     
-    if update.callback_query:
-        await update.callback_query.edit_message_text(text=message, reply_markup=reply_markup)
-    else:
+    try:
         await update.message.reply_text(text=message, reply_markup=reply_markup)
+        logger.info(f"Successfully sent preference menu to user {user_id}")
+    except Exception as e:
+        logger.error(f"Error sending preference menu to user {user_id}: {e}")
+        await update.message.reply_text("Sorry, there was an error. Please try again.")
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
