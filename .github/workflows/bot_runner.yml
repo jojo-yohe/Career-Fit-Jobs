@@ -17,6 +17,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -24,12 +26,13 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Keep workflow active
         run: |
+          git pull origin main
           date > last_run.txt
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
           git add last_run.txt
           git commit -m "Update last run timestamp"
-          git push
+          git push origin main
       - name: Run Bot
         env:
           PYTHONPATH: src
