@@ -92,7 +92,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "• /preferences - Update your job categories\n"
         "• /help - Show this help message\n\n"
         "📬 *Updates Schedule:*\n"
-        "You'll receive job matches 3 times daily\n\n"
+        "You'll receive job matches 3 times daily\n"
+        "• Morning Update: 8:30 AM\n"
+        "• Afternoon Update: 4:30 PM\n"
+        "• Night Update: 12:30 AM\n\n"
         "💡 *Need Help?*\n"
         "Contact: @cfjsupport"
     )

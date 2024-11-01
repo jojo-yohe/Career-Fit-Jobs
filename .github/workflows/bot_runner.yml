@@ -2,8 +2,7 @@ name: Bot Runner
 
 on:
   schedule:
-    # Run every 3 hours except during sleep time (UTC+3 timezone)
-    - cron: '0 3-22/3 * * *'  # Runs at 3,6,9,12,15,18,21 UTC
+    - cron: '0 4-19/3 * * *'  # Runs from 7 AM to 10 PM EAT, 3 hour cycles
   workflow_dispatch:
 
 jobs:
@@ -29,3 +28,5 @@ jobs:
         python src/main.py &
         sleep 7200  # Run for 2 hours
         kill $!
+        echo "Taking a 1-hour break..."
+        sleep 3600  # Sleep for 1 hour

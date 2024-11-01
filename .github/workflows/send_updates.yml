@@ -2,7 +2,7 @@ name: Send User Updates
 
 on:
   schedule:
-    - cron: '30 */8 * * *'  # Runs at 00:30, 08:30, 16:30 UTC (30 minutes after scraping)
+    - cron: '30 5,13,21 * * *'  # Runs at 8:30, 16:30, 00:30 EAT
   workflow_dispatch:
 
 jobs:

@@ -2,7 +2,7 @@ name: Job Update
 
 on:
   schedule:
-    - cron: '0 */8 * * *'  # Runs at 00:00, 08:00, 16:00 UTC
+    - cron: '0 5,13,21 * * *'  # Runs at 8:00, 16:00, 00:00 EAT
   workflow_dispatch:
 
 jobs:
