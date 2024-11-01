@@ -76,28 +76,47 @@ async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYP
         logger.error(f"Error sending preference menu to user {user_id}: {e}")
         await update.message.reply_text("Sorry, there was an error. Please try again.")
 
-async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    await query.answer()
+    user_id = query.from_user.id
     
-    user_id = update.effective_user.id
-    
-    if query.data == "pref_submit":
-        await submit_preferences(update, context)
-    else:
-        category = query.data.replace("pref_", "").replace("_", " ").title()
-        current_preferences = set(get_user_preferences(user_id))
+    if query.data.startswith('pref_'):
+        category = query.data[5:].replace('_', ' ').title()
+        user_preferences = get_user_preferences(user_id) or []
         
-        if category in current_preferences:
-            current_preferences.remove(category)
-        elif len(current_preferences) < MAX_PREFERENCES:
-            current_preferences.add(category)
+        if category in user_preferences:
+            user_preferences.remove(category)
         else:
-            await query.answer(f"You can only select up to {MAX_PREFERENCES} preferences. Please remove one before adding another.", show_alert=True)
-            return
+            if len(user_preferences) < MAX_PREFERENCES:
+                user_preferences.append(category)
         
-        update_user_preferences(user_id, list(current_preferences))
-        await show_preference_menu(update, context)
+        # Update database
+        update_user_preferences(user_id, user_preferences)
+        
+        # Immediately update the keyboard
+        keyboard = []
+        row = []
+        for i, cat in enumerate(JOB_CATEGORIES, 1):
+            icon = "✅" if cat in user_preferences else "⬜️"
+            row.append(InlineKeyboardButton(
+                f"{icon} {cat}", 
+                callback_data=f"pref_{cat.lower().replace(' ', '_').replace('/', '_')}"
+            ))
+            
+            if i % 3 == 0 or i == len(JOB_CATEGORIES):
+                keyboard.append(row)
+                row = []
+        
+        if row:
+            keyboard.append(row)
+        keyboard.append([InlineKeyboardButton("Submit", callback_data="pref_submit")])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        message = (f"Please select up to {MAX_PREFERENCES} job preferences:\n"
+                  f"(You have selected {len(user_preferences)}/{MAX_PREFERENCES})")
+        
+        await query.answer()  # Important: This provides instant feedback
+        await query.edit_message_text(text=message, reply_markup=reply_markup)
 
 async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
@@ -133,7 +152,7 @@ def setup_handlers(application: Application) -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("preferences", preferences))
-    application.add_handler(CallbackQueryHandler(button))
+    application.add_handler(CallbackQueryHandler(button_click))
     # Add other handlers here
 
 def main() -> None:
