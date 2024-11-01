@@ -24,9 +24,20 @@ jobs:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
+        # Process pending users
         PYTHONPATH=src python -c "from database import process_pending_users; process_pending_users()"
+        
+        # Run bot for 2 hours
         python src/main.py &
-        sleep 7200  # Run for 2 hours
+        sleep 7200
         kill $!
-        echo "Taking a 1-hour break..."
-        sleep 3600  # Sleep for 1 hour
+        
+        # Send appropriate sleep notification
+        if [ $(date +%H) -eq 22 ]; then
+          python src/sleep_notifier.py night
+        else
+          python src/sleep_notifier.py break
+        fi
+        
+        # Take break
+        sleep 3600
