@@ -3,14 +3,14 @@ name: Job Update Scraper
 on:
   schedule:
     - cron: '0 5 * * *'   # 8:00 AM EAT
-    - cron: '0 13 * * *'  # 4:00 PM EAT
+    - cron: '45 14 * * *'  # 4:00 PM EAT
     - cron: '0 21 * * *'  # 12:00 AM EAT
   workflow_dispatch:
 
 jobs:
   scrape:
+    name: Scrape Job Updates
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
