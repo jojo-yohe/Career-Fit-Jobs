@@ -6,7 +6,7 @@ on:
     - cron: '0 7 * * *'   # 10:00 AM EAT
     - cron: '0 10 * * *'  # 1:00 PM EAT
     - cron: '0 13 * * *'  # 4:00 PM EAT
-    - cron: '0 16 * * *'  # 7:00 PM EAT
+    - cron: '0 17 * * *'  # 7:00 PM EAT
     - cron: '0 19 * * *'  # 10:00 PM EAT
   workflow_dispatch:
 
