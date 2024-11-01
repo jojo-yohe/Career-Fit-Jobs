@@ -79,8 +79,23 @@ async def show_preference_menu(update: Update, context: ContextTypes.DEFAULT_TYP
 async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     user_id = query.from_user.id
-    
-    if query.data.startswith('pref_'):
+
+    if query.data == "pref_submit":
+        user_preferences = get_user_preferences(user_id)
+        if not user_preferences:
+            await query.answer("Please select at least one preference!", show_alert=True)
+            return
+        
+        # Success message for submission
+        await query.edit_message_text(
+            f"✅ Preferences saved!\n\n"
+            f"Selected categories:\n" + 
+            "\n".join(f"• {pref}" for pref in user_preferences) +
+            "\n\nYou'll receive job updates for these categories."
+        )
+        return
+
+    elif query.data.startswith('pref_'):
         category = query.data[5:].replace('_', ' ').title()
         user_preferences = get_user_preferences(user_id) or []
         
@@ -89,11 +104,14 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         else:
             if len(user_preferences) < MAX_PREFERENCES:
                 user_preferences.append(category)
+            else:
+                await query.answer(f"Maximum {MAX_PREFERENCES} preferences allowed!", show_alert=True)
+                return
         
         # Update database
         update_user_preferences(user_id, user_preferences)
         
-        # Immediately update the keyboard
+        # Update the keyboard
         keyboard = []
         row = []
         for i, cat in enumerate(JOB_CATEGORIES, 1):
@@ -115,7 +133,7 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         message = (f"Please select up to {MAX_PREFERENCES} job preferences:\n"
                   f"(You have selected {len(user_preferences)}/{MAX_PREFERENCES})")
         
-        await query.answer()  # Important: This provides instant feedback
+        await query.answer()
         await query.edit_message_text(text=message, reply_markup=reply_markup)
 
 async def submit_preferences(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
