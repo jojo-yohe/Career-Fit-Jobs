@@ -3,7 +3,7 @@ name: Job Update Scraper
 on:
   schedule:
     - cron: '0 5 * * *'   # 8:00 AM EAT
-    - cron: '45 14 * * *'  # 4:00 PM EAT
+    - cron: '50 14 * * *'  # 4:00 PM EAT
     - cron: '0 21 * * *'  # 12:00 AM EAT
   workflow_dispatch:
 
