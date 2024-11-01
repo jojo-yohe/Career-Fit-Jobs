@@ -1,4 +1,4 @@
-name: Job Update
+name: Job Update Scraper
 
 on:
   schedule:
@@ -10,6 +10,10 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
