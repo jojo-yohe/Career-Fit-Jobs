@@ -3,7 +3,7 @@ name: Send User Updates
 on:
   schedule:
     - cron: '10 5 * * *'   # 8:10 AM EAT
-    - cron: '10 14 * * *'  # 4:10 PM EAT
+    - cron: '10 13 * * *'  # 4:10 PM EAT
     - cron: '10 21 * * *'  # 12:10 AM EAT
   workflow_dispatch:
 
